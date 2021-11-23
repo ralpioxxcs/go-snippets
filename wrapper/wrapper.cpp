@@ -4,10 +4,10 @@
 
 #include <iostream>
 
-void DoSomethingCGO(int a) {
-    DoSomething(a);
+void FooCGO(char* str) {
+    Foo(str);
 }
 
-void RegisterCallback(callbackFnCGO fn) {
-    RegisterCallback(static_cast<callbackFn>(fn));
+void DoSomethingCGO(callbackFnCGO fn) {
+    DoSomething(static_cast<callbackFn>(fn));
 }

@@ -6,8 +6,8 @@
 
 using callbackFn = std::function<void(int a)>;
 
-void DoSomething(int a);
+void DoSomething(callbackFn fn);
 
-void RegisterCallback(callbackFn fn);
+void Foo(std::string str);
 
 #endif

@@ -16,13 +16,12 @@ import (
 )
 
 func TestWrapper() {
-	// ! must be call first
-	C.RegisterCallback(C.callbackFnCGO(C.myCallback))
+	C.FooCGO(C.CString("hi"))
 
-	C.DoSomethingCGO(C.int(5))
+	C.DoSomethingCGO(C.callbackFnCGO(C.myCallback))
 }
 
 //export myCallback
 func myCallback(a C.int) {
-	fmt.Printf("callback from go context (%v)", int(a))
+	fmt.Printf("callback from go context (%v)\n", int(a))
 }

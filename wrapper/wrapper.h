@@ -5,8 +5,9 @@ extern "C" {
 // different to callback typename in "foo.h"
 typedef void(*callbackFnCGO)(int a);
 
-void DoSomethingCGO(int a);
-void RegisterCallback(callbackFnCGO fn);
+void FooCGO(char* str);
+
+void DoSomethingCGO(callbackFnCGO fn);
 
 #ifdef __cplusplus
 }

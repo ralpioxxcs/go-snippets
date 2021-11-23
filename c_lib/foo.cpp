@@ -4,14 +4,11 @@
 
 callbackFn funcPtr;
 
-void DoSomething(int a) {
+void DoSomething(callbackFn fn) {
 	std::cout << "foo::DoSomething()" << std::endl;
-
-	funcPtr(a);
+	fn(7);
 }
 
-void RegisterCallback(callbackFn fn) {
-	if(fn != nullptr) {
-		funcPtr = std::bind(fn, std::placeholders::_1);
-	}
+void Foo(std::string str) {
+	std::cout << str << std::endl;
 }
