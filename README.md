@@ -1,9 +1,8 @@
 # cgo_callback_example
 
+# How to run
 ```
-$ pushd c_lib
-$ clang++ -shared -std=c++14 foo.cpp  -o libfoo.so
-$ popd
-$ go build main.go
+$ g++ -shared -fPIC -std=c++14 c_lib/foo.cpp  -o c_lib/libfoo.so
+$ go run main.go
 ```
 

@@ -1,12 +1,13 @@
 package wrapper
 
 /*
+#cgo CXXFLAGS: -std=c++14 -I../c_lib
+#cgo LDFLAGS: -Wl,-rpath,${SRCDIR}/../c_lib -L${SRCDIR}/../c_lib -lstdc++ -lfoo
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "wrapper.h"
-#cgo LDFLAGS: -L../c_lib -lstdc++ -lfoo
-#cgo CXXFLAGS: -std=c++14 -I../c_lib
 
 void myCallback(int a);
 */
