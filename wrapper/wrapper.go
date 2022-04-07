@@ -12,17 +12,22 @@ package wrapper
 void myCallback(int a);
 */
 import "C"
-import (
-	"fmt"
-)
+
+var callbackFn func(int)
 
 func TestWrapper() {
 	C.FooCGO(C.CString("hi"))
+
+	//C.DoSomethingCGO(C.callbackFnCGO(C.myCallback))
+}
+
+func SetCallbackFn(cb func(int)) {
+	callbackFn = cb
 
 	C.DoSomethingCGO(C.callbackFnCGO(C.myCallback))
 }
 
 //export myCallback
 func myCallback(a C.int) {
-	fmt.Printf("callback from go context (%v)\n", int(a))
+	callbackFn(int(a))
 }

@@ -17,4 +17,9 @@ func main() {
 	C.CFoo()
 
 	wrapper.TestWrapper()
+	wrapper.SetCallbackFn(callbackFn)
+}
+
+func callbackFn(a int) {
+	fmt.Printf("<-- callback from foo (%v)\n", a)
 }
