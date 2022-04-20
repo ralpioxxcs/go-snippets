@@ -1,8 +1,2 @@
-# cgo_callback_example
-
-## How to run
-```
-$ g++ -shared -fPIC -std=c++14 c_lib/foo.cpp  -o c_lib/libfoo.so
-$ go run main.go
-```
-
+# go-snippets
+내가 쓰려고 만든 go  snippet 모음집
