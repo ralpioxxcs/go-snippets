@@ -1,4 +1,4 @@
-# cgo_callback_example
+# cgo_callback
 
 ## How to run
 ```
