@@ -1,39 +1,6 @@
 package main
 
-/*
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
-char *image;
-
-const char* getString() {
-	return "test";
-}
-
-const char** getImagePointer(size_t *imageSize, int value) {
-	const int width = 1920;
-	const int height = 1080;
-	const int depth = 1; // 1byte
-	const int channel = 4; // rgba
-
-	*imageSize = width * height * depth * channel;
-	image = malloc(sizeof(char)* (*imageSize));
-	memset(image, value, *imageSize);
-
-	return (const char**)&image;
-}
-
-void freeImage(char **imagePtr) {
-	free(imagePtr[0]);
-	//free(*imagePtr);
-}
-
-*/
-import "C"
 import (
-	_ "bytes"
 	"fmt"
 	"image"
 	"image/color"
@@ -44,28 +11,66 @@ import (
 	"unsafe"
 )
 
-func RetrieveBytes(width, height *int) []byte {
-	var imageSize C.size_t
-	imagePtr := C.getImagePointer(&imageSize, C.int(time.Now().Nanosecond()%255))
+/*
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <stdbool.h>
+   #include <string.h>
 
-	//fmt.Println("size : ", imageSize)
+   extern void go_callback(char **imgData, size_t imgSize);
 
-	*width = 1920
-	*height = 1080
+   static const int depth = 1; // 1byte
+   static const int channel = 4; // rgba
 
-	slice := C.GoBytes(unsafe.Pointer(*imagePtr), C.int(imageSize))
-	defer C.freeImage(imagePtr)
+   static const char* createEmptyImage(int width, int height, int value) {
+   	size_t imgSize = width * height * depth * channel;
+   	char* imgData = (char*)malloc(sizeof(char) * imgSize);
+   	memset(imgData, value, imgSize);
+   	return (const char*)imgData;
+   }
 
-	return slice
-}
+   static const char** CreateImage(int width, int height, int value, size_t *imageSize) {
+   	const char* imgData = createEmptyImage(width, height, value);
+   	*imageSize = sizeof(imgData) / sizeof(*imgData);
+   	return (const char**)&imgData;
+   }
+
+   static void CreateImageByCallback(int width, int height, int value) {
+   	char* imgData = createEmptyImage(width, height, value);
+   	size_t imgSize = width * height * depth * channel;
+   	go_callback(&imgData, imgSize);
+   }
+
+   static void FreeImage(char **imagePtr) {
+   	free(imagePtr[0]);
+   }
+
+*/
+import "C"
 
 var (
 	curCount int
+	imgBytes []byte
+)
+
+const (
+	width  = 1920
+	height = 1080
 )
 
 func createImage() {
-	var width, height int
-	goImgBytes := RetrieveBytes(&width, &height)
+	randomValue := time.Now().Nanosecond() % 255
+
+	// var imageSize C.size_t
+	// imagePtr := C.CreateImage(C.int(width), C.int(height), C.int(randomValue), &imageSize)
+	// imgBytes = C.GoBytes(unsafe.Pointer(*imagePtr), C.int(imageSize))
+	// defer C.FreeImage(imagePtr)
+
+	C.CreateImageByCallback(C.int(width), C.int(height), C.int(randomValue))
+	if len(imgBytes) <= 0 {
+		fmt.Println("empty")
+		return
+	}
 
 	goImg := image.NewRGBA(
 		image.Rectangle{image.Point{0, 0}, image.Point{width, height}},
@@ -79,10 +84,10 @@ func createImage() {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			goImg.Set(x, y, color.RGBA{
-				goImgBytes[x*channel+(y*stride)+0],
-				goImgBytes[x*channel+(y*stride)+1],
-				goImgBytes[x*channel+(y*stride)+2],
-				goImgBytes[x*channel+(y*stride)+3],
+				imgBytes[x*channel+(y*stride)+0],
+				imgBytes[x*channel+(y*stride)+1],
+				imgBytes[x*channel+(y*stride)+2],
+				imgBytes[x*channel+(y*stride)+3],
 			})
 		}
 	}
@@ -94,7 +99,18 @@ func createImage() {
 	}
 }
 
+//export go_callback
+func go_callback(imgData **C.char, imgSize C.size_t) {
+	imgBytes = C.GoBytes(unsafe.Pointer(*imgData), C.int(imgSize))
+	defer C.FreeImage(imgData)
+}
+
 func main() {
+	if len(os.Args) <= 1 {
+		fmt.Println("should specify count (e.g ./[out] 10)")
+		return
+	}
+
 	startTime := time.Now()
 
 	count, _ := strconv.ParseInt(os.Args[1], 0, 64)
@@ -102,7 +118,7 @@ func main() {
 		curCount = i
 		createImage()
 
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 		fmt.Println("tick .. ", time.Since(startTime))
 	}
 
